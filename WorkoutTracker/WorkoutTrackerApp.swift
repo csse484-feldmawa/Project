@@ -6,12 +6,30 @@
 //
 
 import SwiftUI
+import Firebase
 
 @main
 struct WorkoutTrackerApp: App {
+    @ObservedObject var authManager: AuthManager
+    
+    init() {
+        FirebaseApp.configure()
+        _authManager = ObservedObject(wrappedValue: AuthManager.shared)
+        authManager.startListening()
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if authManager.isSignedIn {
+                NavigationView {
+                    LiftsView()
+                }
+                .navigationViewStyle(.stack)
+            } else {
+                CustomLoginViewController() {error in
+                    print(error)
+                }
+            }
         }
     }
 }
